@@ -1,11 +1,10 @@
 import type { BuildingData, UserProfile, Pathway, ChatMessage } from '@/types';
 
 // ─── Claude API Integration ────────────────────────────────────────────────
-// Uses a proxy endpoint to avoid exposing API keys client-side.
-// For development, can use direct API calls with env variable.
+// All API calls go through the serverless proxy at /api/chat.
+// The API key is stored server-side only — never exposed to the browser.
 
 const API_URL = import.meta.env.VITE_CLAUDE_API_URL || '/api/chat';
-const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
 
 interface ClaudeMessage {
   role: 'user' | 'assistant';
@@ -17,34 +16,6 @@ async function callClaude(
   systemPrompt: string,
   model: string = 'claude-sonnet-4-20250514'
 ): Promise<string> {
-  // If we have a direct API key (dev mode), call Anthropic directly
-  if (API_KEY) {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`Claude API error: ${response.status} - ${err}`);
-    }
-
-    const data = await response.json();
-    return data.content[0]?.text || '';
-  }
-
-  // Otherwise use proxy endpoint
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -52,7 +23,8 @@ async function callClaude(
   });
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    const err = await response.text();
+    throw new Error(`API error: ${response.status} - ${err}`);
   }
 
   const data = await response.json();
