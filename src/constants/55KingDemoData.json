@@ -1,0 +1,798 @@
+{
+  "building": {
+    "address": "55 King Street West, Kitchener, ON N2G 4W1",
+    "city": "Kitchener",
+    "province": "ON",
+    "postalCode": "N2G 4W1",
+    "commonName": "TD Canada Trust Centre (Europro)",
+    "buildingType": "Multi-Tenant Commercial Office",
+    "archetype": "DOE Medium Office (closest prototype)",
+    "ldc": "Enova Power Corp (formerly Kitchener-Wilmot Hydro, merged Sep 2022)",
+    "gasUtility": "Enbridge Gas (former EGD rate zone)",
+    "climateZone": "ASHRAE 6A / NECB Zone 6",
+    "grossFloorArea": 130109.0,
+    "floors": 12.0,
+    "typicalFloorPlate": 10842.416666666666,
+    "yearBuilt": 1992.0,
+    "constructionType": "Curtain wall / steel frame",
+    "hvacHeating": "Gas-fired hydronic boiler (assumed)",
+    "hvacCooling": "Central chiller plant (assumed)",
+    "windowWallRatio": 0.5,
+    "parking": "180 stalls (surface + underground)",
+    "occupancyClass": "Class B Office",
+    "energy": {
+      "electricityEUI": 19.0,
+      "gasEUI": 0.85,
+      "totalElectricity": 2472071.0,
+      "totalGas": 110592.65,
+      "electricityPrice": 0.157,
+      "gasPrice": 0.33,
+      "annualElecCost": 388115.147,
+      "annualGasCost": 36495.5745,
+      "totalEnergyCost": 424610.7215,
+      "siteEUI": 27.942,
+      "elecEscalation": 0.025,
+      "gasEscalation": 0.02
+    }
+  },
+  "userContext": {
+    "role": "property_manager",
+    "ownershipModel": "Private Commercial (likely REIT or investment group)",
+    "primaryMotivation": "Capital equipment aging + heard about incentives",
+    "tenantSensitivity": "High \u2014 multi-tenant Class B, competitive market",
+    "investmentAppetite": "Moderate ($300K-$500K initial, more if CIB)",
+    "timeline": "Flexible \u2014 no immediate deadline",
+    "knownEquipmentDue": "Boiler ~34 yrs (approaching end-of-life)",
+    "existingDebt": "Unknown \u2014 assume manageable",
+    "disruptionTolerance": "Low (multi-tenant, competitive market)"
+  },
+  "assumptions": [
+    {
+      "parameter": "HVAC Primary Heating",
+      "value": "Gas-fired hydronic boiler, non-condensing",
+      "confidence": "MODERATE",
+      "derivation": "Standard for 1992 12-storey office in SW Ontario. Hydronic distribution via perimeter convectors.",
+      "source": "ASHRAE Vintage Guide"
+    },
+    {
+      "parameter": "HVAC Primary Cooling",
+      "value": "Centrifugal or screw chiller, 4-pipe fan coil",
+      "confidence": "MODERATE",
+      "derivation": "12-storey office needs central chiller plant. 4-pipe allows simultaneous H/C.",
+      "source": "Typical for 1990s Class B"
+    },
+    {
+      "parameter": "HVAC Distribution",
+      "value": "4-pipe hydronic with perimeter fan coils",
+      "confidence": "LOW",
+      "derivation": "Assumed from building vintage + curtain wall design. Could be 2-pipe or VAV.",
+      "source": "Critical for HP selection \u2014 4-pipe is ideal for WSHP retrofit"
+    },
+    {
+      "parameter": "Window-to-Wall Ratio",
+      "value": "0.50 (50%)",
+      "confidence": "MODERATE",
+      "derivation": "Curtain wall with granite + glass panels. Photos show ~50% glazing. Updated from 0.45.",
+      "source": "Affects heating load and solar gain calcs"
+    },
+    {
+      "parameter": "Wall U-value (existing)",
+      "value": "0.45 W/m\u00b2K",
+      "confidence": "LOW",
+      "derivation": "1992 curtain wall. MNECB 1997 predecessor standard. Spandrel panel insulation likely R-12.",
+      "source": "MNECB 1997 Table 3.2.2"
+    },
+    {
+      "parameter": "Roof U-value (existing)",
+      "value": "0.30 W/m\u00b2K",
+      "confidence": "MODERATE",
+      "derivation": "1992 flat roof. Likely R-20 insulation. Condition unknown.",
+      "source": "MNECB 1997"
+    },
+    {
+      "parameter": "Window U-value (existing)",
+      "value": "2.80 W/m\u00b2K",
+      "confidence": "MODERATE",
+      "derivation": "1992 double-glazed, likely non-low-e. Typical for era.",
+      "source": "ASHRAE 90.1-1989; M154 Table 4 range 2.0-3.6"
+    },
+    {
+      "parameter": "Heating Design Temp",
+      "value": "-20\u00b0C",
+      "confidence": "VERIFIED",
+      "derivation": "Kitchener ASHRAE 99.6% design heating temp.",
+      "source": "ASHRAE Fundamentals Ch.14"
+    },
+    {
+      "parameter": "Cooling Design Temp",
+      "value": "+31\u00b0C",
+      "confidence": "VERIFIED",
+      "derivation": "Kitchener ASHRAE 0.4% design cooling temp.",
+      "source": "ASHRAE Fundamentals Ch.14"
+    },
+    {
+      "parameter": "HDD (18\u00b0C base)",
+      "value": "4,100 \u00b0C\u00b7days",
+      "confidence": "VERIFIED",
+      "derivation": "Kitchener climate normals.",
+      "source": "Environment Canada"
+    },
+    {
+      "parameter": "CDD (18\u00b0C base)",
+      "value": "300 \u00b0C\u00b7days",
+      "confidence": "VERIFIED",
+      "derivation": "Kitchener \u2014 heating-dominated climate.",
+      "source": "Environment Canada"
+    },
+    {
+      "parameter": "Ground Temperature",
+      "value": "7.5\u00b0C mean annual",
+      "confidence": "VERIFIED",
+      "derivation": "For GSHP EWT calculation. M154 Eq.1-3.",
+      "source": "RETScreen M154 \u00a72.2.2"
+    },
+    {
+      "parameter": "Occupant Density",
+      "value": "5 persons/100 m\u00b2 (604 total)",
+      "confidence": "MODERATE",
+      "derivation": "RETScreen CI3 default for commercial buildings.",
+      "source": "M154 CI3 Table 2"
+    },
+    {
+      "parameter": "Fresh Air Rate",
+      "value": "10 L/s/person (effective, after 50% recovery)",
+      "confidence": "MODERATE",
+      "derivation": "RETScreen CI4 default: 20 L/s gross, 50% HX assumed.",
+      "source": "M154 CI4 Eq.24-27"
+    },
+    {
+      "parameter": "Lighting Power Density",
+      "value": "15 W/m\u00b2 (moderate)",
+      "confidence": "MODERATE",
+      "derivation": "RETScreen Table 2 \"Moderate\" level for commercial.",
+      "source": "M154 CI3 Table 2"
+    },
+    {
+      "parameter": "Equipment Power Density",
+      "value": "10 W/m\u00b2 (moderate)",
+      "confidence": "MODERATE",
+      "derivation": "RETScreen Table 2 \"Moderate\" level.",
+      "source": "M154 CI3 Table 2"
+    }
+  ],
+  "packages": {
+    "light": {
+      "name": "Light",
+      "measures": [
+        "LED Lighting",
+        "BAS Controls",
+        "Pipe Insulation & Air Sealing",
+        "Smart Submetering"
+      ],
+      "siteEUI": 26.676335294117646,
+      "euiReduction": -1.2656647058823545,
+      "euiReductionPct": -0.04529613864012434,
+      "ghgReductionPct": "~15%",
+      "cibEligible": false,
+      "grossCapex": 465500.0,
+      "npv25yr": 533836.3797300512,
+      "irr": 0.19414485148159244,
+      "simplePayback": 4.295016249413071
+    },
+    "deep": {
+      "name": "Deep (Hybrid HP)",
+      "measures": [
+        "LED Lighting",
+        "BAS Controls",
+        "Pipe Insulation & Air Sealing",
+        "Smart Submetering",
+        "Heat Pump System (Hybrid)",
+        "ERV Units",
+        "Electrical Panel Upgrade"
+      ],
+      "siteEUI": 20.29352343514329,
+      "euiReduction": -7.648476564856711,
+      "euiReductionPct": -0.2737268830025306,
+      "ghgReductionPct": 0.819032350065189,
+      "cibEligible": true,
+      "grossCapex": 1835500.0,
+      "npv25yr": 203495.1936688121,
+      "irr": 0.009822658038318721,
+      "simplePayback": 22.168951892779567
+    },
+    "gridSmart": {
+      "name": "Grid-Smart (GSHP + Solar)",
+      "measures": [
+        "LED Lighting",
+        "BAS Controls",
+        "Pipe Insulation & Air Sealing",
+        "Smart Submetering",
+        "Heat Pump System (GSHP)",
+        "ERV Units",
+        "Electrical Panel Upgrade",
+        "Solar PV"
+      ],
+      "siteEUI": 18.996072814207647,
+      "euiReduction": -8.945927185792353,
+      "euiReductionPct": -0.3201605892846737,
+      "ghgReductionPct": 0.9611784523478745,
+      "cibEligible": true,
+      "grossCapex": 1945500.0,
+      "npv25yr": -219567.28669557767,
+      "irr": -0.011270789115272573,
+      "simplePayback": 28.82086675080905
+    }
+  },
+  "financial": {
+    "incentives": [
+      {
+        "program": "IESO Instant Discounts",
+        "measures": "LED",
+        "lightAmount": 45000.0,
+        "deepAmount": 45000.0,
+        "gridSmartAmount": 45000.0
+      },
+      {
+        "program": "IESO Custom Retrofit",
+        "measures": "BAS",
+        "lightAmount": 25000.0,
+        "deepAmount": 25000.0,
+        "gridSmartAmount": 25000.0
+      },
+      {
+        "program": "IESO Prescriptive",
+        "measures": "ASHP units",
+        "lightAmount": 0.0,
+        "deepAmount": 90000.0,
+        "gridSmartAmount": 90000.0
+      },
+      {
+        "program": "IESO Prescriptive",
+        "measures": "Solar PV",
+        "lightAmount": 0.0,
+        "deepAmount": 0.0,
+        "gridSmartAmount": 47300.0
+      },
+      {
+        "program": "Enbridge Custom",
+        "measures": "Gas savings",
+        "lightAmount": 7500.0,
+        "deepAmount": 50000.0,
+        "gridSmartAmount": 50000.0
+      },
+      {
+        "program": "Enbridge Prescriptive",
+        "measures": "ERV units",
+        "lightAmount": 0.0,
+        "deepAmount": 32000.0,
+        "gridSmartAmount": 32000.0
+      },
+      {
+        "program": "CT ITC 30%",
+        "measures": "All eligible capital (if taxable corp)",
+        "lightAmount": 0,
+        "deepAmount": 288000.0,
+        "gridSmartAmount": 306810.0
+      }
+    ],
+    "totalGrants": {
+      "light": 77500.0,
+      "deep": 242000.0,
+      "gridSmart": 289300.0
+    },
+    "netCapexGrantsOnly": {
+      "light": 388000.0,
+      "deep": 1593500.0,
+      "gridSmart": 1656200.0
+    },
+    "netCapexGrantsPlusITC": {
+      "light": 388000.0,
+      "deep": 1305500.0,
+      "gridSmart": 1349390.0
+    },
+    "results": {
+      "light": {
+        "netCapex": -388000.0,
+        "npv75": 533836.3797300512,
+        "irr": 0.19414485148159244,
+        "payback": 4.295016249413071
+      },
+      "deep": {
+        "netCapex": -1593500.0,
+        "npv75": 203495.1936688121,
+        "irr": 0.009822658038318721,
+        "payback": 22.168951892779567
+      },
+      "gridSmart": {
+        "netCapex": -1656200.0,
+        "npv75": -219567.28669557767,
+        "irr": -0.011270789115272573,
+        "payback": 28.82086675080905
+      }
+    },
+    "propertyValue": {
+      "baseline": 15925341.600000001,
+      "increase": {
+        "light": 1009466.3793103471,
+        "deep": 1744357.9034482762,
+        "gridSmart": 1881645.3310344815
+      }
+    },
+    "totalValueCreated": {
+      "light": 1543302.7590403983,
+      "deep": 1947853.0971170883,
+      "gridSmart": 1662078.0443389039
+    }
+  },
+  "phasing": {
+    "phases": [
+      {
+        "phase": 1,
+        "timing": "Year 0-1",
+        "measures": "LED + BAS + Submetering + Pipe Insulation",
+        "trigger": "No trigger needed \u2014 always justified. \"No regrets\" investment.",
+        "disruption": "Low"
+      },
+      {
+        "phase": 2,
+        "timing": "Year 3-5",
+        "measures": "Heat Pump (Hybrid recommended) + ERV + Panel Upgrade",
+        "trigger": "Boiler/chiller end-of-life (~30-35 yrs \u2192 2022-2027 for 1992 bldg). \"Midlife crisis\" trigger.",
+        "disruption": "High"
+      },
+      {
+        "phase": 3,
+        "timing": "Year 5-7",
+        "measures": "Solar PV (rooftop)",
+        "trigger": "Panel upgrade in Phase 2 enables solar interconnection. Roof work bundled with any roof replacement.",
+        "disruption": "Low"
+      }
+    ],
+    "phasedCashflow": [
+      {
+        "year": 0,
+        "phase": "Phase 1 Start",
+        "capex": 465500.0,
+        "incentives": 77500.0,
+        "netCapex": 388000.0
+      },
+      {
+        "year": 1,
+        "phase": "Phase 1 Operating",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      },
+      {
+        "year": 2,
+        "phase": "Phase 1 Operating",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      },
+      {
+        "year": 3,
+        "phase": "Phase 1 Operating",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      },
+      {
+        "year": 4,
+        "phase": "Phase 2 Start",
+        "capex": 1050000.0,
+        "incentives": 377000.0,
+        "netCapex": 673000.0
+      },
+      {
+        "year": 5,
+        "phase": "Phase 2 Operating",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      },
+      {
+        "year": 6,
+        "phase": "Phase 2 Operating",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      },
+      {
+        "year": 7,
+        "phase": "Phase 3 Start",
+        "capex": 119266.58333333333,
+        "incentives": 87064.60583333333,
+        "netCapex": 32201.977499999994
+      },
+      {
+        "year": 8,
+        "phase": "Phase 3 Operating",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      },
+      {
+        "year": 9,
+        "phase": "Full Operation",
+        "capex": 0.0,
+        "incentives": 0.0,
+        "netCapex": 0.0
+      }
+    ]
+  },
+  "reValue": {
+    "grossFloorArea": 130109.0,
+    "vacancyRate": 0.15,
+    "netMarketRent": 18.0,
+    "grossOperatingIncome": 1990667.7,
+    "operatingExpenseRatio": 0.42,
+    "baselineNOI": 1154587.266,
+    "capRate": 0.0725,
+    "baselinePropertyValue": 15925341.600000001,
+    "postRetrofit": {
+      "light": {
+        "rentPremium": 0.02,
+        "vacancyImprovement": 0.01,
+        "oerImprovement": 0.005,
+        "adjustedNOI": 1227773.5785000003,
+        "valueIncrease": 1009466.3793103471
+      },
+      "deep": {
+        "rentPremium": 0.03,
+        "vacancyImprovement": 0.02,
+        "oerImprovement": 0.01,
+        "adjustedNOI": 1281053.214,
+        "valueIncrease": 1744357.9034482762
+      },
+      "gridSmart": {
+        "rentPremium": 0.035,
+        "vacancyImprovement": 0.02,
+        "oerImprovement": 0.01,
+        "adjustedNOI": 1291006.5525,
+        "valueIncrease": 1881645.3310344815
+      }
+    }
+  },
+  "partners": {
+    "utilities": [
+      {
+        "role": "Electric LDC",
+        "org": "Enova Power Corp",
+        "contact": "Commercial Accounts",
+        "phone": "519-745-4771 | enovapower.com/contact-customer-care",
+        "description": "Your electricity distributor. IESO incentive applications route through Enova. Contact for Retrofit Program pre-approval."
+      },
+      {
+        "role": "Gas Utility",
+        "org": "Enbridge Gas (EGD rate zone)",
+        "contact": "Energy Services Team",
+        "phone": "1-866-844-9994 | energyservices@enbridge.com",
+        "description": "Custom Retrofit incentives ($0.40/m3). ERV/boiler prescriptive rebates. Free energy assessment (50% cost-share). Window: Jan-Oct 2026."
+      }
+    ],
+    "incentiveActions": [
+      {
+        "program": "IESO Instant Discounts (LED)",
+        "action": "Purchase LED from participating distributor. Zero paperwork.",
+        "contact": "1-888-351-0034",
+        "deadline": "None \u2014 rolling"
+      },
+      {
+        "program": "IESO Custom Retrofit (BAS)",
+        "action": "Submit pre-approval application BEFORE PO.",
+        "contact": "retrofit@ieso.ca | 1-844-303-5542",
+        "deadline": "Before project start"
+      },
+      {
+        "program": "Enbridge Custom Retrofit",
+        "action": "Contact Energy Services. Submit before PO.",
+        "contact": "energyservices@enbridge.com",
+        "deadline": "Oct 31, 2026 window"
+      },
+      {
+        "program": "Enbridge Energy Assessment",
+        "action": "Request 50% cost-share for ASHRAE L2 audit. Funds CIB requirement.",
+        "contact": "energyservices@enbridge.com",
+        "deadline": "Rolling"
+      },
+      {
+        "program": "IESO Prescriptive (ASHP)",
+        "action": "Submit as Combo Project with Custom application.",
+        "contact": "retrofit@ieso.ca",
+        "deadline": "Before PO"
+      },
+      {
+        "program": "CT ITC 30%",
+        "action": "CPA files on T2 return. No separate application. Verify corp status.",
+        "contact": "CRA: 1-800-959-5525",
+        "deadline": "Year-end filing"
+      },
+      {
+        "program": "CIB Building Retrofits",
+        "action": "Apply through BMO or Scotiabank. Requires ASHRAE L2 audit + >=30% GHG plan.",
+        "contact": "investments@cib-bic.ca | cib-bic.ca/bri-partner-contact-list",
+        "deadline": "Rolling"
+      }
+    ],
+    "servicePartners": [
+      {
+        "role": "Turnkey ESCO",
+        "org": "Efficiency Capital",
+        "why": "Zero upfront cost model. Absorbs performance risk. CIB-accredited aggregator. First IREE-certified project in Canada.",
+        "contact": "info@efficiencycap.com | 416-306-8181",
+        "engagement": "Energy-as-a-Service agreement (10-20yr). They handle everything."
+      },
+      {
+        "role": "Engineering (Alt)",
+        "org": "WSP/ Stantec / RDH",
+        "why": "Alternative engineering firms with deep retrofit experience in Ontario.",
+        "contact": "wsp.com | stantec.com | rdh.com",
+        "engagement": "Fee-for-service"
+      },
+      {
+        "role": "CIB Banking Partner",
+        "org": "BMO / Scotiabank",
+        "why": "CIB Building Retrofits Initiative lending partners. BMO offers ~2% for >=50% decarb.",
+        "contact": "cib-bic.ca/bri-partner-contact-list",
+        "engagement": "Commercial loan application"
+      },
+      {
+        "role": "Commissioning Agent",
+        "org": "TBD \u2014 local Cx firm",
+        "why": "Required for IESO EBCx program ($150K). Identifies operational savings before capital retrofit.",
+        "contact": "EBCx@ieso.ca for provider list",
+        "engagement": "IESO-funded commissioning (3 phases)"
+      }
+    ]
+  },
+  "hpDecision": {
+    "breakEvenCOP": 4.254224242424242,
+    "onGridIntensity": 0.03,
+    "gasEmissionFactor": 1.888,
+    "options": {
+      "fullASHP": {
+        "description": "Cold-climate ASHP replaces gas boiler entirely. Electric backup at design temps.",
+        "seasonalCOP": 3.3928571428571432,
+        "hpElectricity": 269134.30129157886,
+        "remainingGas": 0.0,
+        "netOperatingImpact": -8555.326853521568,
+        "ghgReductionPct": 0.958121766280107,
+        "totalCapex": 1190000.0,
+        "netCapex": 693000.0
+      },
+      "hybridASHP": {
+        "description": "ASHP handles 85% of hours. Existing gas boiler retained for temps below -10C (~15% of hours).",
+        "seasonalCOP": 3.9,
+        "hpElectricity": 199016.4361657051,
+        "remainingGas": 15317.617476934687,
+        "netOperatingImpact": -2601.635796147835,
+        "ghgReductionPct": 0.819032350065189,
+        "totalCapex": 810000.0,
+        "netCapex": 478000.0
+      },
+      "gshp": {
+        "description": "Vertical closed-loop GSHP. Ground temp ~8-10C year-round. Replaces both boiler and chiller.",
+        "seasonalCOP": 3.66,
+        "hpElectricity": 249490.2285587431,
+        "remainingGas": 0.0,
+        "netOperatingImpact": -5471.207434466356,
+        "ghgReductionPct": 0.9611784523478745,
+        "totalCapex": 2590000.0,
+        "netCapex": 1763000.0
+      }
+    }
+  },
+  "cashflows": {
+    "light": [
+      {
+        "year": 0,
+        "elecSavings": 0,
+        "gasSavings": 0,
+        "maintSavings": 0,
+        "replacement": 0,
+        "netCashflow": -388000.0
+      },
+      {
+        "year": 1,
+        "elecSavings": 67935.67533088001,
+        "gasSavings": -9441.130999405055,
+        "maintSavings": 10000.0,
+        "replacement": 0.0,
+        "netCashflow": 68494.54433147496
+      },
+      {
+        "year": 2,
+        "elecSavings": 69634.067214152,
+        "gasSavings": -9629.953619393156,
+        "maintSavings": 10200.0,
+        "replacement": 0.0,
+        "netCashflow": 70204.11359475885
+      },
+      {
+        "year": 3,
+        "elecSavings": 71374.91889450581,
+        "gasSavings": -9822.55269178102,
+        "maintSavings": 10404.0,
+        "replacement": 0.0,
+        "netCashflow": 71956.36620272479
+      },
+      {
+        "year": 4,
+        "elecSavings": 73159.29186686844,
+        "gasSavings": -10019.00374561664,
+        "maintSavings": 10612.08,
+        "replacement": 0.0,
+        "netCashflow": 73752.3681212518
+      },
+      {
+        "year": 5,
+        "elecSavings": 74988.27416354015,
+        "gasSavings": -10219.383820528972,
+        "maintSavings": 10824.3216,
+        "replacement": 0.0,
+        "netCashflow": 75593.21194301118
+      },
+      {
+        "year": 6,
+        "elecSavings": 76862.98101762866,
+        "gasSavings": -10423.771496939553,
+        "maintSavings": 11040.808032,
+        "replacement": 0.0,
+        "netCashflow": 77480.0175526891
+      },
+      {
+        "year": 7,
+        "elecSavings": 78784.55554306936,
+        "gasSavings": -10632.246926878344,
+        "maintSavings": 11261.62419264,
+        "replacement": 0.0,
+        "netCashflow": 79413.93280883101
+      },
+      {
+        "year": 8,
+        "elecSavings": 80754.16943164609,
+        "gasSavings": -10844.891865415908,
+        "maintSavings": 11486.856676492798,
+        "replacement": 0.0,
+        "netCashflow": 81396.13424272298
+      },
+      {
+        "year": 9,
+        "elecSavings": 82773.02366743724,
+        "gasSavings": -11061.789702724227,
+        "maintSavings": 11716.593810022656,
+        "replacement": 0.0,
+        "netCashflow": 83427.82777473566
+      },
+      {
+        "year": 10,
+        "elecSavings": 84842.34925912316,
+        "gasSavings": -11283.025496778711,
+        "maintSavings": 11950.925686223109,
+        "replacement": 0.0,
+        "netCashflow": 85510.24944856757
+      },
+      {
+        "year": 11,
+        "elecSavings": 86963.40799060123,
+        "gasSavings": -11508.686006714286,
+        "maintSavings": 12189.944199947571,
+        "replacement": 0.0,
+        "netCashflow": 87644.66618383452
+      },
+      {
+        "year": 12,
+        "elecSavings": 89137.49319036627,
+        "gasSavings": -11738.85972684857,
+        "maintSavings": 12433.74308394652,
+        "replacement": 0.0,
+        "netCashflow": 89832.37654746421
+      },
+      {
+        "year": 13,
+        "elecSavings": 91365.93052012542,
+        "gasSavings": -11973.636921385543,
+        "maintSavings": 12682.417945625453,
+        "replacement": -80000.0,
+        "netCashflow": 12074.711544365317
+      },
+      {
+        "year": 14,
+        "elecSavings": 93650.07878312854,
+        "gasSavings": -12213.109659813254,
+        "maintSavings": 12936.06630453796,
+        "replacement": 0.0,
+        "netCashflow": 94373.03542785325
+      },
+      {
+        "year": 15,
+        "elecSavings": 95991.33075270675,
+        "gasSavings": -12457.371853009521,
+        "maintSavings": 13194.787630628722,
+        "replacement": 0.0,
+        "netCashflow": 96728.74653032595
+      },
+      {
+        "year": 16,
+        "elecSavings": 98391.11402152444,
+        "gasSavings": -12706.519290069707,
+        "maintSavings": 13458.683383241292,
+        "replacement": 0.0,
+        "netCashflow": 99143.27811469603
+      },
+      {
+        "year": 17,
+        "elecSavings": 100850.89187206254,
+        "gasSavings": -12960.649675871104,
+        "maintSavings": 13727.857050906121,
+        "replacement": 0.0,
+        "netCashflow": 101618.09924709756
+      },
+      {
+        "year": 18,
+        "elecSavings": 103372.16416886408,
+        "gasSavings": -13219.862669388527,
+        "maintSavings": 14002.414191924245,
+        "replacement": 0.0,
+        "netCashflow": 104154.71569139979
+      },
+      {
+        "year": 19,
+        "elecSavings": 105956.46827308569,
+        "gasSavings": -13484.259922776295,
+        "maintSavings": 14282.462475762728,
+        "replacement": 0.0,
+        "netCashflow": 106754.67082607212
+      },
+      {
+        "year": 20,
+        "elecSavings": 108605.37997991283,
+        "gasSavings": -13753.945121231822,
+        "maintSavings": 14568.11172527798,
+        "replacement": 0.0,
+        "netCashflow": 109419.54658395899
+      },
+      {
+        "year": 21,
+        "elecSavings": 111320.51447941065,
+        "gasSavings": -14029.024023656459,
+        "maintSavings": 14859.473959783543,
+        "replacement": 0.0,
+        "netCashflow": 112150.96441553773
+      },
+      {
+        "year": 22,
+        "elecSavings": 114103.5273413959,
+        "gasSavings": -14309.604504129587,
+        "maintSavings": 15156.663438979213,
+        "replacement": 0.0,
+        "netCashflow": 114950.58627624552
+      },
+      {
+        "year": 23,
+        "elecSavings": 116956.11552493079,
+        "gasSavings": -14595.79659421218,
+        "maintSavings": 15459.796707758796,
+        "replacement": 0.0,
+        "netCashflow": 117820.11563847741
+      },
+      {
+        "year": 24,
+        "elecSavings": 119880.01841305406,
+        "gasSavings": -14887.71252609642,
+        "maintSavings": 15768.99264191397,
+        "replacement": 0.0,
+        "netCashflow": 120761.2985288716
+      },
+      {
+        "year": 25,
+        "elecSavings": 122877.01887338041,
+        "gasSavings": -15185.46677661835,
+        "maintSavings": 16084.37249475225,
+        "replacement": 0.0,
+        "netCashflow": 123775.92459151431
+      }
+    ]
+  }
+}
