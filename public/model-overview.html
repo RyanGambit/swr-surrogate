@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scout — System Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+    background: #FAFAF8;
+    color: #1A1A1A;
+    padding: 48px 32px;
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #E5E5E0;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .scout-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #1A1A1A; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+  }
+  .header h1 {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+    color: #1A1A1A;
+  }
+  .header .subtitle {
+    font-size: 15px; color: #6B6B65; margin-top: 4px;
+  }
+  .header .meta {
+    display: flex; gap: 24px; margin-top: 16px; font-size: 12px; color: #9B9B93;
+  }
+  .header .meta span { font-weight: 500; color: #6B6B65; }
+
+  /* ── Flow arrow between layers ── */
+  .flow-arrow {
+    display: flex; justify-content: center; padding: 12px 0;
+  }
+  .flow-arrow svg { width: 24px; height: 24px; }
+  .flow-arrow path { stroke: #CCCCC6; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── Layer containers ── */
+  .layer {
+    border: 1px solid #E5E5E0;
+    border-radius: 16px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .layer-head {
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #EEEEEA;
+  }
+  .layer-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .layer-label { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: #1A1A1A; }
+  .layer-time { margin-left: auto; font-size: 12px; color: #9B9B93; }
+  .layer-body { padding: 20px 24px; }
+
+  /* ── Cards row ── */
+  .cards-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .card {
+    flex: 1; padding: 14px 16px; border-radius: 10px;
+    border: 1px solid #E5E5E0; background: #FAFAF8;
+  }
+  .card .card-title {
+    font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px;
+  }
+  .card .card-desc {
+    font-size: 12px; color: #6B6B65; line-height: 1.5;
+  }
+
+  /* Card color variants */
+  .card.teal { border-color: #9FE1CB; background: #E1F5EE; }
+  .card.teal .card-title { color: #085041; }
+  .card.teal .card-desc { color: #0F6E56; }
+
+  .card.amber { border-color: #FAC775; background: #FAEEDA; }
+  .card.amber .card-title { color: #633806; }
+  .card.amber .card-desc { color: #854F0B; }
+
+  .card.blue { border-color: #B5D4F4; background: #E6F1FB; }
+  .card.blue .card-title { color: #0C447C; }
+  .card.blue .card-desc { color: #185FA5; }
+
+  .card.pink { border-color: #F4C0D1; background: #FBEAF0; }
+  .card.pink .card-title { color: #72243E; }
+  .card.pink .card-desc { color: #993556; }
+
+  .card.purple { border-color: #CECBF6; background: #EEEDFE; }
+  .card.purple .card-title { color: #3C3489; }
+  .card.purple .card-desc { color: #534AB7; }
+
+  /* ── Partner callouts ── */
+  .partners { display: flex; gap: 8px; flex-wrap: wrap; }
+  .partner-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 6px;
+    background: #F3F3EF; font-size: 11px; color: #6B6B65; line-height: 1.3;
+  }
+  .partner-tag .who { font-weight: 600; color: #1A1A1A; }
+
+  /* ── Center object (Assessment Object) ── */
+  .center-obj {
+    padding: 16px 24px;
+    border: 2px solid #1A1A1A;
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+  }
+  .center-obj .obj-title { font-size: 16px; font-weight: 700; color: #1A1A1A; }
+  .center-obj .obj-desc { font-size: 12px; color: #6B6B65; margin-top: 4px; }
+
+  /* ── Scenario pills ── */
+  .scenarios { display: flex; gap: 8px; margin: 12px 0 8px; }
+  .scenario-pill {
+    flex: 1; padding: 12px 14px; border-radius: 10px; text-align: center;
+  }
+  .scenario-pill .s-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .scenario-pill .s-target { font-size: 11px; opacity: 0.8; }
+  .s-essential { border: 1px solid #9FE1CB; background: #E1F5EE; color: #085041; }
+  .s-targeted { border: 1px solid #FAC775; background: #FAEEDA; color: #633806; }
+  .s-deep { border: 1px solid #B5D4F4; background: #E6F1FB; color: #0C447C; }
+
+  /* ── Note callout ── */
+  .note {
+    font-size: 12px; color: #9B9B93; text-align: center;
+    padding: 6px 0; line-height: 1.4;
+  }
+
+  /* ── Output grid ── */
+  .output-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    margin-top: 12px;
+  }
+  .out-card {
+    padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #E5E5E0; background: #FAFAF8;
+  }
+  .out-card .out-title { font-size: 12px; font-weight: 600; color: #1A1A1A; margin-bottom: 1px; }
+  .out-card .out-fmt { font-size: 10px; color: #9B9B93; }
+
+  /* ── Principle bar ── */
+  .principle {
+    margin-top: 24px; padding: 14px 20px;
+    border: 1px solid #E5E5E0; border-radius: 10px;
+    background: #F3F3EF; font-size: 12px; color: #6B6B65; line-height: 1.6;
+  }
+  .principle strong { color: #1A1A1A; }
+
+  /* ── Data sources sidebar ── */
+  .data-sources {
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid #E5E5E0;
+  }
+  .data-sources h3 {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    color: #9B9B93; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .source-item {
+    padding: 12px 14px; border-radius: 8px;
+    border: 1px solid #E5E5E0; background: #fff;
+  }
+  .source-item .s-label { font-size: 12px; font-weight: 600; color: #1A1A1A; margin-bottom: 2px; }
+  .source-item .s-detail { font-size: 11px; color: #6B6B65; line-height: 1.4; }
+  .source-item .s-owner { font-size: 10px; color: #9B9B93; margin-top: 4px; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 40px; padding-top: 20px;
+    border-top: 1px solid #E5E5E0;
+    text-align: center;
+    font-size: 11px; color: #CCCCC6; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ── Responsive adjustment ── */
+  @media (max-width: 680px) {
+    .cards-row { flex-direction: column; }
+    .scenarios { flex-direction: column; }
+    .output-grid { grid-template-columns: 1fr 1fr; }
+    .source-grid { grid-template-columns: 1fr; }
+    .pathway-detail-grid { flex-direction: column; }
+    .io-row { flex-direction: column; }
+    .io-arrow { transform: rotate(90deg); }
+  }
+
+  /* ── Step labels within layers ── */
+  .step-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    color: #9B9B93; margin-bottom: 10px; margin-top: 6px;
+    padding-bottom: 6px; border-bottom: 1px solid #EEEEEA;
+  }
+
+  /* ── Input/Output mapping rows ── */
+  .io-row {
+    display: flex; gap: 12px; align-items: stretch;
+    margin-top: 10px;
+  }
+  .io-box {
+    flex: 1; padding: 12px 14px; border-radius: 8px;
+    font-size: 12px; line-height: 1.5;
+  }
+  .io-in { background: #F3F3EF; border: 1px solid #E5E5E0; }
+  .io-out { background: #E6F1FB; border: 1px solid #B5D4F4; }
+  .io-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+    color: #9B9B93; margin-bottom: 6px;
+  }
+  .io-out .io-label { color: #185FA5; }
+  .io-item { color: #6B6B65; padding: 2px 0; }
+  .io-out .io-item { color: #0C447C; }
+  .io-arrow {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #CCCCC6; flex-shrink: 0; width: 24px;
+  }
+
+  /* ── Pathway detail grid (3 columns) ── */
+  .pathway-detail-grid {
+    display: flex; gap: 10px;
+  }
+  .pathway-block {
+    flex: 1; border-radius: 10px; overflow: hidden;
+    border: 1px solid #E5E5E0;
+  }
+  .pw-header {
+    padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .pw-name { font-size: 14px; font-weight: 600; }
+  .pw-ghg { font-size: 12px; font-weight: 500; opacity: 0.8; }
+  .pw-body { padding: 12px 14px; background: #fff; }
+  .pw-section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    color: #9B9B93; margin-bottom: 4px;
+  }
+  .pw-measure {
+    font-size: 11px; color: #1A1A1A; padding: 2px 0; padding-left: 10px;
+    position: relative;
+  }
+  .pw-measure::before {
+    content: ''; position: absolute; left: 0; top: 8px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #CCCCC6;
+  }
+  .pw-output { font-size: 11px; color: #6B6B65; line-height: 1.5; }
+  .pw-doc {
+    font-size: 11px; color: #1A1A1A; padding: 3px 0 3px 10px;
+    position: relative;
+  }
+  .pw-doc::before {
+    content: '↓'; position: absolute; left: 0; top: 3px;
+    font-size: 9px; color: #9B9B93;
+  }
+  .pw-divider { height: 1px; background: #EEEEEA; margin: 8px 0; }
+
+  /* Pathway color variants */
+  .s-essential-block { border-color: #9FE1CB; }
+  .s-essential-head { background: #E1F5EE; color: #085041; }
+  .s-targeted-block { border-color: #FAC775; }
+  .s-targeted-head { background: #FAEEDA; color: #633806; }
+  .s-deep-block { border-color: #B5D4F4; }
+  .s-deep-head { background: #E6F1FB; color: #0C447C; }
+
+  /* ── Hero selection mapping ── */
+  .hero-map {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .hero-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px; border-radius: 8px;
+    background: #FAFAF8; border: 1px solid #E5E5E0;
+  }
+  .hero-approach {
+    font-size: 12px; font-weight: 500; color: #1A1A1A;
+    min-width: 160px;
+  }
+  .hero-arrow { font-size: 14px; color: #CCCCC6; }
+  .hero-result {
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 6px;
+  }
+  .hero-teal { background: #E1F5EE; color: #085041; }
+  .hero-amber { background: #FAEEDA; color: #633806; }
+  .hero-blue { background: #E6F1FB; color: #0C447C; }
+  .hero-neutral { background: #F3F3EF; color: #6B6B65; }
+
+  /* ── Output source line ── */
+  .out-source {
+    font-size: 9px; color: #9B9B93; margin-top: 4px; line-height: 1.4;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="scout-mark">S</div>
+      <div>
+        <h1>How Scout works</h1>
+        <div class="subtitle">System architecture for partners</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><span>Prepared by:</span> Gambit Technologies</div>
+      <div><span>For:</span> SWR project team, Antoni / WSP, UW team</div>
+      <div><span>Date:</span> April 2026</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ LAYER 1 ═══════════ -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-dot" style="background:#0F6E56"></div>
+      <div class="layer-label">Layer 1 — Data gathering</div>
+      <div class="layer-time">3–5 minutes</div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row">
+        <div class="card teal">
+          <div class="card-title">Address lookup</div>
+          <div class="card-desc">User enters a street address. Scout auto-populates building type, year built, size, climate zone, LDC, and satellite view using public data sources.</div>
+        </div>
+        <div class="card teal">
+          <div class="card-title">Baseline archetypes</div>
+          <div class="card-desc">Building type + vintage → default HVAC system, wall construction, insulation R-values, window type, air tightness, and equipment lifecycle estimates.</div>
+        </div>
+        <div class="card teal">
+          <div class="card-title">User input</div>
+          <div class="card-desc">Ownership model, role, motivations, investment approach, annual energy cost, and the business operating in the building.</div>
+        </div>
+      </div>
+      <div class="partners">
+        <div class="partner-tag"><span class="who">Ryan / Gambit</span> Address search engine (Nominatim, OSM, MPAC)</div>
+        <div class="partner-tag"><span class="who">Antoni / WSP</span> Baseline spreadsheet — archetype data by building type + vintage</div>
+        <div class="partner-tag"><span class="who">Pratik / SWR</span> LDC mapping, Ontario energy rates, incentive program database</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow"><svg viewBox="0 0 24 24"><path d="M12 5V17M8 13L12 18L16 13"/></svg></div>
+
+  <!-- Assessment Object -->
+  <div class="center-obj">
+    <div class="obj-title">Assessment object</div>
+    <div class="obj-desc">Structured building profile with confidence scores — building, envelope, systems, energy, context, user, and per-field confidence rating</div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow"><svg viewBox="0 0 24 24"><path d="M12 5V17M8 13L12 18L16 13"/></svg></div>
+
+  <!-- ═══════════ LAYER 2 ═══════════ -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-dot" style="background:#854F0B"></div>
+      <div class="layer-label">Layer 2 — Conversational enrichment</div>
+      <div class="layer-time">Optional · 2–3 minutes</div>
+    </div>
+    <div class="layer-body">
+      <div class="card amber" style="text-align:center">
+        <div class="card-title">Scout conversation</div>
+        <div class="card-desc">Scout asks 3–5 targeted questions about low-confidence parameters only. Users can skip this step and go straight to results with current data.</div>
+      </div>
+      <div class="note" style="margin-top:10px">One master prompt — not separate prompts per page. Chat carries full history and is available on the dashboard as a side panel.</div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow"><svg viewBox="0 0 24 24"><path d="M12 5V17M8 13L12 18L16 13"/></svg></div>
+
+  <!-- ═══════════ LAYER 3 ═══════════ -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-dot" style="background:#185FA5"></div>
+      <div class="layer-label">Layer 3 — Models, scenarios + outputs</div>
+      <div class="layer-time">Deterministic calculations</div>
+    </div>
+    <div class="layer-body">
+
+      <!-- ── Step 3A: Current state baseline ── -->
+      <div class="step-label">Step A — Establish current state baseline</div>
+      <div class="card blue" style="margin-bottom:14px">
+        <div class="card-title">Energy model — baseline run</div>
+        <div class="card-desc" style="margin-bottom:8px">Physics-based calculations using the Assessment Object. Produces the building's current performance before any retrofit work.</div>
+        <div class="io-row">
+          <div class="io-box io-in">
+            <div class="io-label">Inputs from assessment object</div>
+            <div class="io-item">Envelope: wall R-value, roof R-value, window U-value, air tightness</div>
+            <div class="io-item">Systems: HVAC type, age, capacity, efficiency rating</div>
+            <div class="io-item">Building: size, stories, climate zone, orientation</div>
+            <div class="io-item">Operations: business type, occupancy, operating hours</div>
+          </div>
+          <div class="io-arrow">→</div>
+          <div class="io-box io-out">
+            <div class="io-label">Baseline outputs</div>
+            <div class="io-item">Current EUI (eKWh/sqft)</div>
+            <div class="io-item">Energy breakdown (gas vs. electric)</div>
+            <div class="io-item">Annual GHG emissions (tCO2e)</div>
+            <div class="io-item">Benchmark comparison (vs. similar buildings)</div>
+          </div>
+        </div>
+      </div>
+      <div class="partners" style="margin-bottom:20px">
+        <div class="partner-tag"><span class="who">Antoni / WSP</span> Validates physics calculations, provides archetype defaults where data is missing</div>
+      </div>
+
+      <!-- ── Step 3B: Three pathways ── -->
+      <div class="step-label">Step B — Run models for each pathway</div>
+      <div class="note" style="margin-bottom:12px;text-align:left">Each pathway is a curated package of measures — not AI-generated. The energy model and financial model run separately for each one, producing pathway-specific numbers.</div>
+
+      <!-- Pathway table -->
+      <div class="pathway-detail-grid">
+
+        <!-- Essential -->
+        <div class="pathway-block s-essential-block">
+          <div class="pw-header s-essential-head">
+            <div class="pw-name">Essential</div>
+            <div class="pw-ghg">~30% GHG</div>
+          </div>
+          <div class="pw-body">
+            <div class="pw-section-label">Curated measures</div>
+            <div class="pw-measure">Boiler replacement (high-efficiency condensing)</div>
+            <div class="pw-measure">Roof insulation upgrade (R-12 → R-40)</div>
+            <div class="pw-measure">BAS controls optimization</div>
+            <div class="pw-measure">LED lighting upgrade</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Energy model outputs</div>
+            <div class="pw-output">EUI reduction, energy cost savings, GHG avoided</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Financial model outputs</div>
+            <div class="pw-output">Capital cost, incentive match, net cost, simple payback, annual savings, asset value uplift</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Incentive matching</div>
+            <div class="pw-output">Prescriptive rebates (Enbridge, LDC). Lower DRAI tier eligibility.</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Generated outputs</div>
+            <div class="pw-doc">Equipment replacement business case (PDF)</div>
+            <div class="pw-doc">Enbridge Custom application (pre-filled)</div>
+            <div class="pw-doc">LDC rebate worksheet (pre-filled)</div>
+            <div class="pw-doc">Contractor RFP — boiler + roof scope (DOCX)</div>
+          </div>
+        </div>
+
+        <!-- Targeted -->
+        <div class="pathway-block s-targeted-block">
+          <div class="pw-header s-targeted-head">
+            <div class="pw-name">Targeted</div>
+            <div class="pw-ghg">~50% GHG</div>
+          </div>
+          <div class="pw-body">
+            <div class="pw-section-label">Curated measures</div>
+            <div class="pw-measure">Everything in Essential, plus:</div>
+            <div class="pw-measure">Window replacement (priority facades)</div>
+            <div class="pw-measure">Air sealing + envelope commissioning</div>
+            <div class="pw-measure">Demand-controlled ventilation</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Energy model outputs</div>
+            <div class="pw-output">Deeper EUI reduction, larger GHG cut — crosses 25% threshold for mid-tier DRAI</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Financial model outputs</div>
+            <div class="pw-output">Higher capital cost offset by larger incentive stack. Stronger payback with bundling.</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Incentive matching</div>
+            <div class="pw-output">DRAI Standard Stream unlocked. Enbridge Custom + LDC prescriptive. Stacking guidance.</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Generated outputs</div>
+            <div class="pw-doc">Targeted decarb business case (PDF)</div>
+            <div class="pw-doc">NRCan DRAI application draft (pre-filled)</div>
+            <div class="pw-doc">Enbridge Custom application (pre-filled)</div>
+            <div class="pw-doc">Engineering scope brief (DOCX)</div>
+          </div>
+        </div>
+
+        <!-- Deep -->
+        <div class="pathway-block s-deep-block">
+          <div class="pw-header s-deep-head">
+            <div class="pw-name">Deep retrofit</div>
+            <div class="pw-ghg">~80% GHG</div>
+          </div>
+          <div class="pw-body">
+            <div class="pw-section-label">Curated measures</div>
+            <div class="pw-measure">Phase 1: Boiler + roof (Year 1)</div>
+            <div class="pw-measure">Phase 2: Full envelope — windows, walls, air barrier (Year 3)</div>
+            <div class="pw-measure">Phase 3: Electrification — heat pumps, solar-ready, electrical upgrade (Year 5)</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Energy model outputs</div>
+            <div class="pw-output">Maximum EUI reduction. Crosses 50% GHG threshold for deep DRAI + CIB financing.</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Financial model outputs</div>
+            <div class="pw-output">Highest capital but best lifecycle cost. 20-year cashflow projection. Max incentive capture.</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Incentive matching</div>
+            <div class="pw-output">DRAI Deep Stream + CIB low-interest financing + Enbridge + LDC + FCM. Full stack.</div>
+
+            <div class="pw-divider"></div>
+            <div class="pw-section-label">Generated outputs</div>
+            <div class="pw-doc">Deep retrofit feasibility analysis (PDF)</div>
+            <div class="pw-doc">Board-ready one-pager with 20-yr projection</div>
+            <div class="pw-doc">NRCan DRAI application draft (pre-filled)</div>
+            <div class="pw-doc">CIB financing summary (PDF)</div>
+            <div class="pw-doc">Partner contact package (pre-written emails)</div>
+            <div class="pw-doc">Engineering handoff export (JSON/CSV)</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="partners" style="margin-top:14px">
+        <div class="partner-tag"><span class="who">Antoni / WSP</span> Cost escalation factors (new → retrofit multiplier per measure), pathway scope validation</div>
+        <div class="partner-tag"><span class="who">UW team</span> Financial model formulas, bank/funder input requirements, archetype validation</div>
+        <div class="partner-tag"><span class="who">Pratik / SWR</span> Incentive database with eligibility rules, amounts, stacking order, program timelines</div>
+      </div>
+
+      <!-- ── Step 3C: Hero selection ── -->
+      <div class="step-label" style="margin-top:20px">Step C — Hero selection</div>
+      <div class="note" style="text-align:left;margin-bottom:10px">The user's stated approach (from intake) determines which pathway is highlighted as the primary recommendation. All three are always shown.</div>
+
+      <div class="hero-map">
+        <div class="hero-row">
+          <div class="hero-approach">"Fix what's urgent"</div>
+          <div class="hero-arrow">→</div>
+          <div class="hero-result hero-teal">Essential is the hero</div>
+        </div>
+        <div class="hero-row">
+          <div class="hero-approach">"Invest if strong case"</div>
+          <div class="hero-arrow">→</div>
+          <div class="hero-result hero-amber">Targeted is the hero</div>
+        </div>
+        <div class="hero-row">
+          <div class="hero-approach">"Full opportunity"</div>
+          <div class="hero-arrow">→</div>
+          <div class="hero-result hero-blue">Deep retrofit is the hero</div>
+        </div>
+        <div class="hero-row">
+          <div class="hero-approach">"Figuring it out"</div>
+          <div class="hero-arrow">→</div>
+          <div class="hero-result hero-neutral">No hero — show all three equally</div>
+        </div>
+      </div>
+
+      <div class="note" style="font-size:11px;margin-top:10px">MCDA criteria weights (cost, payback, GHG, incentive capture, disruption risk, regulatory compliance, asset uplift) shift automatically based on approach. Weights are hard-coded per approach type — not AI-determined.</div>
+
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-arrow"><svg viewBox="0 0 24 24"><path d="M12 5V17M8 13L12 18L16 13"/></svg></div>
+
+  <!-- ═══════════ OUTPUTS ═══════════ -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-dot" style="background:#993556"></div>
+      <div class="layer-label">The deliverable — what the user walks away with</div>
+      <div class="layer-time">Downloadable package</div>
+    </div>
+    <div class="layer-body">
+      <div class="card pink" style="text-align:center; margin-bottom:14px">
+        <div class="card-title">Scout action plan</div>
+        <div class="card-desc">Phased retrofit roadmap framed for the user's ownership type and selected pathway. This is what they take to their board, CFO, or asset manager. The plan is the product — not the dashboard.</div>
+      </div>
+
+      <div class="note" style="margin-bottom:10px;text-align:left">
+        <strong style="color:#1A1A1A">Every output is pathway-specific.</strong> The business case for "Essential" has different numbers, different framing, and different incentive references than the business case for "Deep retrofit." Documents are generated from the selected pathway's model outputs — not generic templates.
+      </div>
+
+      <div class="note" style="margin-bottom:10px;text-align:left">
+        <strong style="color:#1A1A1A">Every output is ownership-specific.</strong> An asset manager sees NAV impact and NOI improvement. A condo board sees reserve fund impact and special assessment avoidance. Same pathway, different financial language.
+      </div>
+
+      <div class="output-grid">
+        <div class="out-card">
+          <div class="out-title">Business case</div>
+          <div class="out-fmt">PDF · Board-ready one-pager</div>
+          <div class="out-source">Sources: financial model outputs, ownership framing, pathway measures</div>
+        </div>
+        <div class="out-card">
+          <div class="out-title">Grant applications</div>
+          <div class="out-fmt">Pre-filled forms · stacking guidance</div>
+          <div class="out-source">Sources: incentive match, building profile, pathway GHG %</div>
+        </div>
+        <div class="out-card">
+          <div class="out-title">Contractor RFP</div>
+          <div class="out-fmt">DOCX · Scope of work + specs</div>
+          <div class="out-source">Sources: pathway measures, building data, equipment specs</div>
+        </div>
+        <div class="out-card">
+          <div class="out-title">Partner emails</div>
+          <div class="out-fmt">Pre-written, personalized to building</div>
+          <div class="out-source">Sources: regional contacts, pathway scope, building address</div>
+        </div>
+        <div class="out-card">
+          <div class="out-title">Engineering export</div>
+          <div class="out-fmt">JSON/CSV · Structured data for handoff</div>
+          <div class="out-source">Sources: full assessment object + pathway selections</div>
+        </div>
+        <div class="out-card">
+          <div class="out-title">Master checklist</div>
+          <div class="out-fmt">PDF · Walk-away progress tracker</div>
+          <div class="out-source">Sources: pathway action steps, incentive timelines, contacts</div>
+        </div>
+      </div>
+
+      <div class="partners" style="margin-top:14px">
+        <div class="partner-tag"><span class="who">Conestoga team</span> Validates action plan steps — are timelines realistic? Are effort descriptions accurate?</div>
+        <div class="partner-tag"><span class="who">Pratik / SWR</span> Named regional contacts, partner relationships, incentive application details</div>
+        <div class="partner-tag"><span class="who">Roy Gower</span> Go-to-market strategy, scaling analysis</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Principle bar -->
+  <div class="principle">
+    <strong>Key design principles:</strong> Every number is traceable — not AI-hallucinated. Scenarios are deterministic. Static data (incentives, building code, rates) is cached and refreshed quarterly — not searched live every session. The tool speaks different financial languages to different ownership types (landlord vs. asset manager vs. condo board). Outputs are the product — if the user leaves with only knowledge and no artifact, we've failed.
+  </div>
+
+  <!-- ═══════════ DATA SOURCES ═══════════ -->
+  <div class="data-sources">
+    <h3>Data sources — static vs. live</h3>
+    <div class="source-grid">
+      <div class="source-item">
+        <div class="s-label">Building address data</div>
+        <div class="s-detail">Live AI search per session — every building is unique</div>
+        <div class="s-owner">Sources: Nominatim, OSM, MPAC, Gemini/Claude refinement</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">Baseline archetypes</div>
+        <div class="s-detail">Static — validated by WSP, refreshed as needed</div>
+        <div class="s-owner">Owner: Antoni / WSP (5-person validation team)</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">Incentive programs</div>
+        <div class="s-detail">Static database — quarterly scrape + manual validation</div>
+        <div class="s-owner">Owner: Pratik / SWR + manual curation</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">Building code (NECB)</div>
+        <div class="s-detail">Static — updated every 2 years with code cycle</div>
+        <div class="s-owner">Hard-coded in knowledge base</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">Energy rates by provider</div>
+        <div class="s-detail">Static with region lookup — refreshed every 6 months</div>
+        <div class="s-owner">Owner: Ryan / Gambit (scraped)</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">LDC mapping</div>
+        <div class="s-detail">Static lookup table — postal code → LDC</div>
+        <div class="s-owner">Owner: Ryan / Gambit</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">Cost data (RS Means)</div>
+        <div class="s-detail">Static reference + retrofit escalation multipliers</div>
+        <div class="s-owner">Owner: Antoni / WSP + UW team</div>
+      </div>
+      <div class="source-item">
+        <div class="s-label">Financial model</div>
+        <div class="s-detail">Deterministic formulas — inputs from assessment, outputs per scenario</div>
+        <div class="s-owner">Owner: UW team (Mohamad, Claire)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Scout System Architecture · Gambit Technologies · April 2026
+  </div>
+
+</div>
+</body>
+</html>
